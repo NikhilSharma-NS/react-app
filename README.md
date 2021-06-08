@@ -673,3 +673,10 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
 ```
+
+Step 3:
+https://app.codecov.io/gh/NikhilSharma-NS/react-app/
+
+
+##### Validating Our Comit Messages with Commitlint and Commitizen
+
