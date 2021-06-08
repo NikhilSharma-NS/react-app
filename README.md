@@ -518,13 +518,13 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - uses: actions/download-artifact
-      # - name: Deploy to Staging
-      #   if: github.event_name == 'push'
-      #   run: npx surge --project ./build --domain silent-apparatus.surge.sh
-      #   env:
-      #     SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
-      #     SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+      - name: Deploy to Staging
+        if: github.event_name == 'push'
+        run: npx surge --project ./build --domain silent-apparatus.surge.sh
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+
 
 ```
 
