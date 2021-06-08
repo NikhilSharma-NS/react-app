@@ -174,4 +174,51 @@ jobs:
 
 
 
+
+
+```
+
+##### Caching NPM Dependencies
+
+Step 1:
+
+```
+name: CI
+on:
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node-modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - run: npm CI
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env:
+          CI: true
+      - name: Build Projects
+      - if: github.event_name == 'push'
+      - run: npm run build
+      - name: Deploy to Staging
+        if: github.event_name == 'push'
+        run: npx surge --project ./build --domain silent-apparatus.surge.sh
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+
 ```
