@@ -123,6 +123,7 @@ Step 6:
 npm install --save-dev --save-exact prettier
 npx prettier --check "**/\*.js" -> to check the format
 npx prettier --write "**/\*.js" -> to fix the format
+npx prettier --write "\*_/_.{js,jsx,yml,yaml,json,css,scss,md}"
 
 #### Creating Develop merge pull requets
 
