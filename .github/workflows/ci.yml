@@ -32,10 +32,10 @@ jobs:
           name: code-coverage
           path: coverage
       - name: Build Projects
-      - if: github.event_name == 'push'
-      - run: npm run build
+        if: github.event_name == 'push'
+        run: npm run build
       - name: Upload Build Folder
-      - if: github.event_name == 'push'
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
         with:
           name: build
@@ -45,7 +45,6 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/download-artifact
       - name: Deploy to Staging
         if: github.event_name == 'push'
         run: npx surge --project ./build --domain silent-apparatus.surge.sh
