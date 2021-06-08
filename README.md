@@ -589,3 +589,14 @@ jobs:
       #   run: npx surge --project ./build --domain enormous-poison-prod.sh
 
 ```
+
+
+##### Uploading Code Coverage Reports to Codecov
+
+Step1:
+
+http://codecov.in/
+
+Step 2:
+https://app.codecov.io/gh/NikhilSharma-NS/react-app
+
