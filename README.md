@@ -508,7 +508,7 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           zip -r build.zip ./build
-          zip -r coverage.zip ./build
+          zip -r coverage.zip ./coverage
       - name: Create a Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx semantic-release
@@ -575,7 +575,7 @@ jobs:
         if: github.event_name == 'push' && giathub.ref == 'refs/heads/master'
         run: |
           zip -r build.zip ./build
-          zip -r coverage.zip ./build
+          zip -r coverage.zip ./coverage
      - name: Create a Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx semantic-release
@@ -590,7 +590,6 @@ jobs:
 
 ```
 
-
 ##### Uploading Code Coverage Reports to Codecov
 
 Step1:
@@ -599,4 +598,3 @@ http://codecov.in/
 
 Step 2:
 https://app.codecov.io/gh/NikhilSharma-NS/react-app
-
