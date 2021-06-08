@@ -157,18 +157,21 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "12.x"
-      - run: npm CI
+      - run: npm ci
       - run: npm run format:check
       - run: npm test -- --coverage
         env:
           CI: true
       - name: Build Projects
-      - if: github.event_name == 'push'
-      - run: npm run build
+        if: github.event_name == 'push'
+        run: npm run build
       - name: Deploy to Staging
         if: github.event_name == 'push'
         run: npx surge --project ./build --domain silent-apparatus.surge.sh
         env:
           SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+
+
+
 ```
