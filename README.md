@@ -69,6 +69,8 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
+
+
 # react-app
 
 ##### Setting up Our Repository
@@ -92,7 +94,6 @@ Step 5:
 
 create folder .github\workflows
 and create the file ci.yml
-
 ```
 name: CI
 on:
@@ -108,16 +109,69 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "12.x"
-      - run: npm CI
+      - run: npm ci
       - run: npm run format:check
       - run: npm test -- --coverage
         env:
           CI: true
 
 
+          
 ```
 
 Step 6:
 
 npm install --save-dev --save-exact prettier
-npx prettier --check "\*_/_.js"
+npx prettier --check "**/*.js" -> to check the format
+npx prettier --write "**/*.js"  -> to fix the format
+
+#### Creating Develop merge pull requets
+
+Step 1:
+
+surge
+
+Step 2:
+surge token
+
+step 3:
+
+surge whoami
+
+Step 4:
+
+```
+name: CI
+on: 
+  pull_request:
+    branches: [develop]
+  push:
+    branches: [develop]  
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with: 
+          node-version: "12.x"
+      - run: npm CI
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env:
+          CI: true
+      - name: Build Projects
+      - if: github.event_name == 'push'
+      - run: npm run build 
+      - name: Deploy to Staging
+        if: github.event_name == 'push'
+        run: npx surge --project ./build --domain silent-apparatus.surge.sh
+        env: 
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+```
+
+
+
