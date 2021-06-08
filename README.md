@@ -119,3 +119,6 @@ jobs:
 ```
 
 Step 6:
+
+npm install --save-dev --save-exact prettier
+npx prettier --check "**/*.js"
