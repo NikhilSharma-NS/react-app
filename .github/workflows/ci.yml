@@ -41,18 +41,18 @@ jobs:
           name: build
           path: build
       - name: ZIP Assets
-        if: github.event_name == 'push' && giathub.ref == 'refs/heads/master'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           zip -r build.zip ./build
-          zip -r coverage.zip ./build
-     - name: Create a Release
+          zip -r coverage.zip ./coverage
+      - name: Create a Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx semantic-release
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Deploy to Staging
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-      #   run: npx surge --project ./build --domain silent-apparatus.surge.sh
-      # - name: Deploy to Production
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      #   run: npx surge --project ./build --domain enormous-poison-prod.sh
+      - name: Deploy to Staging
+        if: github.event_name == 'push'
+        run: npx surge --project ./build --domain silent-apparatus.surge.sh
+        env:
+          SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+          SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
