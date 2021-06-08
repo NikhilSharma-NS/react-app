@@ -1,16 +1,20 @@
 name: CI
+
 on:
   pull_request:
-    branches: [develop, master]
+    branches: [develop, main]
   push:
-    branches: [develop, master]
+    branches: [develop, main]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+      SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
     steps:
       - uses: actions/checkout@v2
-      - name: Cache node-modules
+      - name: Cache node_module
         uses: actions/cache@v1
         with:
           path: ~/.npm
@@ -29,30 +33,32 @@ jobs:
       - name: Upload Test Coverage
         uses: actions/upload-artifact@v1
         with:
-          name: code-coverage
           path: coverage
-      - name: Build Projects
+          name: code-coverage
+      - name: Build Project
         if: github.event_name == 'push'
         run: npm run build
-      - name: Upload Build Folder
+      - name: Upload Build
         if: github.event_name == 'push'
-        uses: actions/upload-artifact@v1"alialaa"
+        uses: actions/upload-artifact@v1
         with:
-          name: build
           path: build
+          name: build
+      # - name: Download artifacts
+      #   uses: actions/download-artifact@v1
       - name: ZIP Assets
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: |
           zip -r build.zip ./build
           zip -r coverage.zip ./coverage
-     - name: Create a Release
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      - name: Create a Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         run: npx semantic-release
-        env: 
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      # - name: Deploy to Staging
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-      #   run: npx surge --project ./build --domain silent-apparatus.surge.sh
-      # - name: Deploy to Production
-      #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-      #   run: npx surge --project ./build --domain enormous-poison-prod.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.CUSTOM_TOKEN }}
+      - name: Deploy on stage
+        if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+        run: npx surge --project ./build --domain http://separate-tax.surge.sh/
+      - name: Deploy on Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: npx surge --project ./build --domain http://didactic-bucket.surge.sh/
