@@ -16,3 +16,33 @@ https://github.com/NikhilSharma-NS/react-app/settings/branch_protection_rules/20
 Step 4
 branch rule for develop branch
 https://github.com/NikhilSharma-NS/react-app/settings/branch_protection_rules/20854736
+
+Step 5:
+
+create folder .github\workflows
+and create the file ci.yml
+```
+name: CI
+on: 
+  pull_request:
+    branches: [develop]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps: 
+      - uses: actions/checkout@v2
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with: 
+          node-version: "12.x"
+      - run: npm CI
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env:
+          CI: true
+
+          
+```
+
+Step 6:
