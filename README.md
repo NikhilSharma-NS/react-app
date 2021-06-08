@@ -69,8 +69,6 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
-
-
 # react-app
 
 ##### Setting up Our Repository
@@ -94,20 +92,21 @@ Step 5:
 
 create folder .github\workflows
 and create the file ci.yml
+
 ```
 name: CI
-on: 
+on:
   pull_request:
     branches: [develop]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v2
       - name: Use NodeJS
         uses: actions/setup-node@v1
-        with: 
+        with:
           node-version: "12.x"
       - run: npm CI
       - run: npm run format:check
@@ -115,10 +114,10 @@ jobs:
         env:
           CI: true
 
-          
+
 ```
 
 Step 6:
 
 npm install --save-dev --save-exact prettier
-npx prettier --check "**/*.js"
+npx prettier --check "\*_/_.js"
