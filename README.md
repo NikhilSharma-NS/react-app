@@ -125,6 +125,10 @@ npx prettier --check "**/\*.js" -> to check the format
 npx prettier --write "**/\*.js" -> to fix the format
 npx prettier --write "\*_/_.{js,jsx,yml,yaml,json,css,scss,md}"
 
+```
+npx prettier --write "**/*.{js,jsx,yml,yaml,json,css,scss,md}"
+```
+
 #### Creating Develop merge pull requets
 
 Step 1:
@@ -405,7 +409,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: "12.x"
-      - run: npm CI
+      - run: npm ci
       - run: npm run format:check
       - run: npm test -- --coverage
         env:
@@ -416,10 +420,10 @@ jobs:
           name: code-coverage
           path: coverage
       - name: Build Projects
-      - if: github.event_name == 'push'
-      - run: npm run build
+        if: github.event_name == 'push'
+        run: npm run build
       - name: Upload Build Folder
-      - if: github.event_name == 'push'
+        if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
         with:
           name: build
@@ -429,7 +433,91 @@ jobs:
         run: npx semantic-release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/download-artifact
+      # - name: Deploy to Staging
+      #   if: github.event_name == 'push'
+      #   run: npx surge --project ./build --domain silent-apparatus.surge.sh
+      #   env:
+      #     SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+      #     SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+
+```
+
+##### Uploading Release Assets
+
+step1:
+
+```
+module.exports = {
+  branches: "master",
+  repositoryUrl: "https://github.com/NikhilSharma-NS/react-app",
+  plugins: [
+    "@semantic-release/commit-analyzer", "@semantic-release/release-notes-generator",
+    ["@semantic-release/github", {
+        assets: [
+            { path: "build.zip", label: "Build" },
+            { path: "coverage.zip", label: "Coverage" }
+        ]
+    }]
+    ]
+};
+
+```
+
+Step2:
+
+```
+name: CI
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node-modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env:
+          CI: true
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage
+      - name: Build Projects
+        if: github.event_name == 'push'
+        run: npm run build
+      - name: Upload Build Folder
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: build
+      - name: ZIP Assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          zip -r build.zip ./build
+          zip -r coverage.zip ./coverage
+      - name: Create a Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy to Staging
         if: github.event_name == 'push'
         run: npx surge --project ./build --domain silent-apparatus.surge.sh
@@ -437,4 +525,80 @@ jobs:
           SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
           SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
 
+
 ```
+
+##### Deploying to Production when Pushing to master
+
+Step 1:
+
+```
+name: CI
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node-modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env:
+          CI: true
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage
+      - name: Build Projects
+        if: github.event_name == 'push'
+        run: npm run build
+      - name: Upload Build Folder
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: build
+      - name: ZIP Assets
+        if: github.event_name == 'push' && giathub.ref == 'refs/heads/master'
+        run: |
+          zip -r build.zip ./build
+          zip -r coverage.zip ./coverage
+     - name: Create a Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Deploy to Staging
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+      #   run: npx surge --project ./build --domain silent-apparatus.surge.sh
+      # - name: Deploy to Production
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      #   run: npx surge --project ./build --domain enormous-poison-prod.sh
+
+```
+
+##### Uploading Code Coverage Reports to Codecov
+
+Step1:
+
+http://codecov.in/
+
+Step 2:
+https://app.codecov.io/gh/NikhilSharma-NS/react-app
