@@ -680,3 +680,43 @@ https://app.codecov.io/gh/NikhilSharma-NS/react-app/
 
 ##### Validating Our Comit Messages with Commitlint and Commitizen
 
+Step 1:
+Nav:https://github.com/conventional-changelog/commitlint 
+
+npm install --save-dev @commitlint/config-conventional @commitlint/cli
+
+Step 2:
+npm install husky --save-dev
+https://typicode.github.io/husky/#/?id=manual
+
+
+Step 3:
+https://github.com/commitizen/cz-cli
+
+##### Sending a Slack Message when a New Release is published
+
+Step1:
+
+Job Failure -> Create Issue
+Issue Created -> Sent a slack message
+Release Created -> send a Slack mesage
+
+Step2:
+
+```
+name: Notify on Release
+on:
+  release: 
+    types: [published]
+
+jobs:
+  slack-message:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Message
+        run: |
+          curl -X POST -H 'content-type: application/json'
+           -- data '{"text":"New release ${{ github.event.release.tag_name }} 
+           is out, <${{ github.event.release.html_url }}|check it out now.>"}' 
+           ${{ secrets.SLACK_WEBHOOK }}
+```
