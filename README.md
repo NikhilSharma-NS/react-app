@@ -796,3 +796,143 @@ jobs:
 
 ##### Opening a Automated issue when job fails
 
+Step 1:
+
+```
+name: CI
+on:
+  pull_request:
+    branches: [develop, master]
+  push:
+    branches: [develop, master]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Cache node-modules
+        uses: actions/cache@v1
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Use NodeJS
+        uses: actions/setup-node@v1
+        with:
+          node-version: "12.x"
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm test -- --coverage
+        env:
+          CI: true
+      - name: Upload Test Coverage
+        uses: actions/upload-artifact@v1
+        with:
+          name: code-coverage
+          path: coverage
+      - name: Build Projects
+        if: github.event_name == 'push'
+        run: npm run build
+      - name: Upload Build Folder
+        if: github.event_name == 'push'
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: build
+      - name: ZIP Assets
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: |
+          zip -r build.zip ./build
+          zip -r coverage.zip ./coverage
+      - name: Create a Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: npx semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Deploy to Staging
+      #   if: github.event_name == 'push'
+      #   run: npx surge --project ./build --domain silent-apparatus.surge.sh
+      #   env:
+      #     SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
+      #     SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
+      # - name: Deploy to Production
+      #   if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+      #   run: npx surge --project ./build --domain enormous-poison-prod.sh
+      - name: Upload Coverage Reports
+        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+        run: npx codecov
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      - name: Open Issue
+        if: failure() && github.event_name == 'pull_request'
+        run: |
+          curl --request POST \
+          --url https://api.github.com/repos/${{ github.repository }}/issues \
+          --header 'authorization: Bearer ${{ secrets.CUSTOM_TOKEN }}' \
+          --header 'content-type: application/json' \
+          --data '{
+            "title": "Automated issue for commit: ${{ github.sha }}",
+            "body": "This issue was automatically created by the GitHub Action workflow **${{ github.workflow }}**. \n\n The commit hash was: _${{ github.sha }}_.",
+            "assignees": ["${{ github.event.pull_request.user.login }}"]
+            }'
+```
+
+Step 2:
+
+
+```
+name: Notify on Issue
+on:
+  issues: 
+    types: [opened]
+
+jobs:
+  slack-message:
+    runs-on: ubuntu-latest
+    steps: 
+      - name: Slack Message
+        run: |
+          curl -X POST -H 'Content-type: application/json'
+           -- data '{"text":"New issue created: <${{ github.event.issue.html_url }}|${{ github.event.issue.title }}.>"}' 
+           ${{ secrets.SLACK_WEBHOOK }}
+```
+
+
+##### GitHub Actions Overview
+
+Step 1:
+```
+name: Actions Workflow 
+
+on: [push]
+
+jobs: 
+  run-github-actions: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: List Files 
+        run: |
+          pwd
+          ls -a
+          echo $GITHUB_SHA
+          echo $GITHUB_REPOSITORY
+          echo $GITHUB_WORKSPACE
+          echo "${{ github.token }}"
+          # git clone git@github:$GITHUB_REPOSITORY
+          # git checkout $GITHUB_SHA
+      - name: Checkout 
+        uses: actions/checkout@v1
+      - name: List Files After Checkout
+        run: |
+          pwd
+          ls -a
+      - name: Simple JS Action
+        id: greet 
+        uses: actions/hello-world-javascript-action@v1
+        with: 
+          who-to-greet: John
+      - name: Log Greeting Time
+        run: echo "${{ steps.greet.outputs.time }}"
+```
