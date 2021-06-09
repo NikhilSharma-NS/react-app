@@ -677,18 +677,16 @@ jobs:
 Step 3:
 https://app.codecov.io/gh/NikhilSharma-NS/react-app/
 
-
 ##### Validating Our Comit Messages with Commitlint and Commitizen
 
 Step 1:
-Nav:https://github.com/conventional-changelog/commitlint 
+Nav:https://github.com/conventional-changelog/commitlint
 
 npm install --save-dev @commitlint/config-conventional @commitlint/cli
 
 Step 2:
 npm install husky --save-dev
 https://typicode.github.io/husky/#/?id=manual
-
 
 Step 3:
 https://github.com/commitizen/cz-cli
@@ -706,18 +704,18 @@ Step2:
 ```
 name: Notify on Release
 on:
-  release: 
+  release:
     types: [published]
 
 jobs:
   slack-message:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Slack Message
         run: |
           curl -X POST -H 'content-type: application/json'
-           -- data '{"text":"New release ${{ github.event.release.tag_name }} 
-           is out, <${{ github.event.release.html_url }}|check it out now.>"}' 
+           -- data '{"text":"New release ${{ github.event.release.tag_name }}
+           is out, <${{ github.event.release.html_url }}|check it out now.>"}'
            ${{ secrets.SLACK_WEBHOOK }}
 ```
 
@@ -725,51 +723,51 @@ Step 2:
 
 ```
 name: CI
-on: 
+on:
   pull_request:
     branches: [develop, master]
   push:
-    branches: [develop, master]  
+    branches: [develop, master]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    env: 
+    env:
         SURGE_LOGIN: ${{ secrets.SURGE_LOGIN }}
         SURGE_TOKEN: ${{ secrets.SURGE_TOKEN }}
-    steps: 
+    steps:
       - uses: actions/checkout@v2
       - name: Cache node-modules
         uses: actions/cache@v1
-        with: 
+        with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
       - name: Use NodeJS
         uses: actions/setup-node@v1
-        with: 
+        with:
           node-version: "12.x"
       - run: npm CI
       - run: npm run format:check
       - run: npm test -- --coverage
         env:
           CI: true
-      - name: Upload Test Coverage 
+      - name: Upload Test Coverage
         uses: actions/upload-artifact@v1
-        with: 
+        with:
           name: code-coverage
           path: coverage
       - name: Build Projects
       - if: github.event_name == 'push'
-      - run: npm run build 
+      - run: npm run build
       - name: Upload Build Folder
-      - if: github.event_name == 'push' 
+      - if: github.event_name == 'push'
         uses: actions/upload-artifact@v1
-        with: 
+        with:
           name: build
           path: build
-      - name: ZIP Assets 
+      - name: ZIP Assets
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: |
           zip -r build.zip ./build
@@ -777,7 +775,7 @@ jobs:
       - name: Create a Release
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx semantic-release
-        env: 
+        env:
           GITHUB_TOKEN: ${{ secrets.CUSTOM_TOKEN }}
       - uses: actions/download-artifact
       - name: Deploy to Staging
@@ -789,10 +787,9 @@ jobs:
       - name: Upload Coverage Reports
         if: github.event_name == 'push' && github.ref == 'refs/heads/master'
         run: npx codecov
-        env: 
+        env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 ```
-
 
 ##### Opening a Automated issue when job fails
 
@@ -881,38 +878,37 @@ jobs:
 
 Step 2:
 
-
 ```
 name: Notify on Issue
 on:
-  issues: 
+  issues:
     types: [opened]
 
 jobs:
   slack-message:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Slack Message
         run: |
           curl -X POST -H 'Content-type: application/json'
-           -- data '{"text":"New issue created: <${{ github.event.issue.html_url }}|${{ github.event.issue.title }}.>"}' 
+           -- data '{"text":"New issue created: <${{ github.event.issue.html_url }}|${{ github.event.issue.title }}.>"}'
            ${{ secrets.SLACK_WEBHOOK }}
 ```
-
 
 ##### GitHub Actions Overview
 
 Step 1:
+
 ```
-name: Actions Workflow 
+name: Actions Workflow
 
 on: [push]
 
-jobs: 
-  run-github-actions: 
+jobs:
+  run-github-actions:
     runs-on: ubuntu-latest
     steps:
-      - name: List Files 
+      - name: List Files
         run: |
           pwd
           ls -a
@@ -922,16 +918,16 @@ jobs:
           echo "${{ github.token }}"
           # git clone git@github:$GITHUB_REPOSITORY
           # git checkout $GITHUB_SHA
-      - name: Checkout 
+      - name: Checkout
         uses: actions/checkout@v1
       - name: List Files After Checkout
         run: |
           pwd
           ls -a
       - name: Simple JS Action
-        id: greet 
+        id: greet
         uses: actions/hello-world-javascript-action@v1
-        with: 
+        with:
           who-to-greet: John
       - name: Log Greeting Time
         run: echo "${{ steps.greet.outputs.time }}"

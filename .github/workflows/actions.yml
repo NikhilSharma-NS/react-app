@@ -1,12 +1,12 @@
-name: Actions Workflow 
+name: Actions Workflow
 
 on: [push]
 
-jobs: 
-  run-github-actions: 
+jobs:
+  run-github-actions:
     runs-on: ubuntu-latest
     steps:
-      - name: List Files 
+      - name: List Files
         run: |
           pwd
           ls -a
@@ -16,16 +16,16 @@ jobs:
           echo "${{ github.token }}"
           # git clone git@github:$GITHUB_REPOSITORY
           # git checkout $GITHUB_SHA
-      - name: Checkout 
+      - name: Checkout
         uses: actions/checkout@v1
       - name: List Files After Checkout
         run: |
           pwd
           ls -a
       - name: Simple JS Action
-        id: greet 
+        id: greet
         uses: actions/hello-world-javascript-action@v1
-        with: 
+        with:
           who-to-greet: John
       - name: Log Greeting Time
         run: echo "${{ steps.greet.outputs.time }}"

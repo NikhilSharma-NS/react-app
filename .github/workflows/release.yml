@@ -1,12 +1,12 @@
 name: Notify on Release
 on:
-  release: 
+  release:
     types: [published]
 
 jobs:
   slack-message:
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - name: Slack Message
         run: |
           curl -X POST -H 'content-type: application/json'
